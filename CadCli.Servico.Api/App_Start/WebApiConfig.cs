@@ -12,6 +12,7 @@ namespace CadCli.Servico.Api
     {
         public static void Register(HttpConfiguration config)
         {
+
             // Web API configuration and services
             var cors = new EnableCorsAttribute("*", "*", "GET");
             config.EnableCors(cors);
@@ -20,7 +21,6 @@ namespace CadCli.Servico.Api
             container.RegisterType<IClienteRepositorio, ClienteRepositorio>(new HierarchicalLifetimeManager());
             container.RegisterType<IEmpresaRepositorio, EmpresaRepositorio>(new HierarchicalLifetimeManager());
             config.DependencyResolver = new UnityResolver(container);
-
 
             // Web API routes
             config.MapHttpAttributeRoutes();

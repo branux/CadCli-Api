@@ -9,6 +9,7 @@ using System.Web.Http;
 
 namespace CadCli.Servico.Api.Controllers
 {
+    [RoutePrefix("api/v1/clientes")]
     public class ClientesController : ApiController
     {
         private readonly IClienteRepositorio _repo;
@@ -18,14 +19,14 @@ namespace CadCli.Servico.Api.Controllers
             _repo = repo;
         }
 
-
+        [Route]
         public async Task<IHttpActionResult> Get()
         {
             var dados = await Task.FromResult(_repo.Todos().ToList());
             return Ok(dados);
         }
 
-
+        [Route("{id:int}")]
         public async Task<IHttpActionResult> Get(int id)
         {
             var dados = await Task.FromResult(_repo.ObterPorId(id));
@@ -37,20 +38,24 @@ namespace CadCli.Servico.Api.Controllers
 
         }
 
-
+        [Route]
         public async Task<IHttpActionResult> Post(Cliente cliente)
         {
             if (cliente == null)
                 return BadRequest("Cliente não pode ser nulo");
 
-            if (cliente.Id !=0)
+            if (cliente.Id != 0)
                 return BadRequest("Id do cliente inválido");
 
             try
             {
                 await Task.FromResult(_repo.Salvar(cliente));
+                //return CreatedAtRoute("DefaultApi", new { id = cliente.Id }, cliente);
 
-                return CreatedAtRoute("DefaultApi", new { id = cliente.Id }, cliente);
+                var location = Request == null ? "" :
+                    string.Format("{0}/{1}", Request.RequestUri, cliente.Id).Replace("//","/");
+
+                return Created(location, cliente);
 
             }
             catch (Exception ex)
@@ -63,7 +68,8 @@ namespace CadCli.Servico.Api.Controllers
 
         }
 
-        public async Task<IHttpActionResult> Put(int id, Cliente cliente)
+        [Route("{id:int}")]
+        public async Task<IHttpActionResult> Put(int id,Cliente cliente)
         {
 
             if (cliente == null)
@@ -77,6 +83,8 @@ namespace CadCli.Servico.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+
+        [Route("{id:int}")]
         public async Task<IHttpActionResult> Delete(int id)
         {
             var cliente = await Task.FromResult(_repo.Excluir(id));
