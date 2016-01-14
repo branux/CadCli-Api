@@ -109,12 +109,12 @@ namespace CadCli.Tests.Api.Controllers
             var controller = new EmpresasController(repo);
 
             //Action
-            var result = await controller.Post(empresa) as CreatedAtRouteNegotiatedContentResult<Empresa>;
+            var result = await controller.Post(empresa) as CreatedNegotiatedContentResult<Empresa>;
 
             //Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.RouteName, "DefaultApi");
-            Assert.AreEqual(result.RouteValues["id"], result.Content.Id);
+            //Assert.AreEqual(result.RouteName, "DefaultApi");
+            //Assert.AreEqual(result.RouteValues["id"], result.Content.Id);
             Assert.AreEqual(result.Content.Nome, empresa.Nome);
 
             controller.Dispose();

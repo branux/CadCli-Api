@@ -1,7 +1,6 @@
 ﻿using CadCli.Dominio.Entidades;
 using CadCli.Dominio.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +9,7 @@ using System.Web.Http;
 
 namespace CadCli.Servico.Api.Controllers
 {
+    [RoutePrefix("api/v1/empresas")]
     public class EmpresasController : ApiController
     {
 
@@ -20,7 +20,7 @@ namespace CadCli.Servico.Api.Controllers
             _repo = repo;
         }
 
-
+        [Route]
         public async Task<IHttpActionResult> Get()
         {
             var dados = await Task.FromResult(_repo.Todos().ToList());
@@ -28,6 +28,7 @@ namespace CadCli.Servico.Api.Controllers
         }
 
 
+        [Route("{id:int}")]
         public async Task<IHttpActionResult> Get(int id)
         {
             var dados = await Task.FromResult(_repo.ObterPorId(id));
@@ -38,7 +39,7 @@ namespace CadCli.Servico.Api.Controllers
             return Ok(dados);
         }
 
-        [Route("api/empresas/{id:int}/clientes")]
+        [Route("{id:int}/clientes")]
         public async Task<IHttpActionResult> GetCli(int id)
         {
             var dados = await Task.FromResult(_repo.ObterPorIdComClientes(id));
@@ -49,9 +50,7 @@ namespace CadCli.Servico.Api.Controllers
             return Ok(dados);
         }
 
-
-
-
+        [Route]
         public async Task<IHttpActionResult> Post(Empresa empresa)
         {
             if (empresa == null)
@@ -64,7 +63,11 @@ namespace CadCli.Servico.Api.Controllers
             {
                 await Task.FromResult(_repo.Salvar(empresa));
 
-                return CreatedAtRoute("DefaultApi", new { id = empresa.Id }, empresa);
+                //return CreatedAtRoute("DefaultApi", new { id = empresa.Id }, empresa);
+                var location = Request == null ? "" :
+                    string.Format("{0}/{1}", Request.RequestUri, empresa.Id).Replace("//", "/");
+
+                return Created(location, empresa);
 
             }
             catch (Exception ex)
@@ -76,6 +79,7 @@ namespace CadCli.Servico.Api.Controllers
             }
         }
 
+        [Route("{id:int}")]
         public async Task<IHttpActionResult> Put(int id, Empresa empresa)
         {
 
@@ -90,6 +94,7 @@ namespace CadCli.Servico.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [Route("{id:int}")]
         public async Task<IHttpActionResult> Delete(int id)
         {
             var empresa = await Task.FromResult(_repo.Excluir(id));
